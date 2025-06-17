@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shareholder Value</title>
+    <style>
+        /* CSS - You can move this to a separate .css file */
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .shareholder-value {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2em;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .sv-per-second {
+            color: #718096;
+            font-weight: 600;
+        }
+        
+        .boardroom-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+        
+        .boardroom-table {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #8B4513, #A0522D);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 8px solid #654321;
+        }
+        
+        .boardroom-table:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+        
+        .boardroom-table:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+        
+        .boardroom-table.clicking {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+        
+        .money-stack {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .money-stack::before {
+            content: '💰';
+            position: absolute;
+            top: -10px;
+            left: -5px;
+            font-size: 30px;
+        }
+        
+        .seat {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #8B4513;
+            border-radius: 50% 50% 5px 5px;
+            border: 3px solid #654321;
+        }
+        
+        .seat.occupied {
+            background: #FF6B6B;
+        }
+        
+        .seat.occupied::after {
+            content: '👤';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+        }
+        
+        .right-panel {
+            width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        
+        .upgrades-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .upgrade-category {
+            margin-bottom: 25px;
+        }
+        
+        .category-title {
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .upgrade {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+        
+        .upgrade.affordable {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+        }
+        
+        .upgrade.expensive {
+            cursor: not-allowed;
+        }
+        
+        .upgrade.never-bought {
+            opacity: 0.7;
+            filter: grayscale(20%);
+        }
+        
+        .upgrade-icon {
+            font-size: 2em;
+            margin-right: 12px;
+            min-width: 40px;
+        }
+        
+        .upgrade-info {
+            flex: 1;
+        }
+        
+        .upgrade-name {
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 2px;
+        }
+        
+        .upgrade-description {
+            font-size: 0.9em;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+        
+        .upgrade-cost {
+            font-weight: 600;
+            color: #e53e3e;
+        }
+        
+        .upgrade-count {
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            padding: 4px 8px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .achievement-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #2d3748;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+            border: 2px solid #ecc94b;
+        }
+        
+        .achievement-notification.show {
+            transform: translateX(0);
+        }
+        
+        .achievement-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            color: #48bb78;
+            font-size: 1.5em;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+        
+        .special-upgrades {
+            border-top: 3px solid #667eea;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+        
+        .special-upgrade {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #5a67d8;
+        }
+        
+        .special-upgrade .upgrade-cost {
+            color: #fed7d7;
+        }
+        
+        .upgrade-tooltip {
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        
+        .upgrade-tooltip::after {
+            content: attr(data-tooltip);
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(30, 30, 30, 0.95));
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .upgrade:hover .upgrade-tooltip::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="left-panel">
+            <div class="stats">
+                <div style="font-size: 0.9em; color: #718096; font-weight: 600; margin-bottom: 5px;">Shareholder Value</div>
+                <div class="shareholder-value" id="shareholderValue">0</div>
+                <div class="sv-per-second">per second: <span id="svPerSecond">0</span></div>
+                <div style="margin-top: 10px; font-size: 0.9em; color: #718096;">
+                    Total clicks: <span id="totalClicks">0</span>
+                </div>
+            </div>
+            
+            <div class="boardroom-container">
+                <div class="boardroom-table" id="boardroomTable">
+                    <div class="money-stack">$$$</div>
+                </div>
+                <!-- Seats will be generated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="upgrades-title">Corporate Upgrades</div>
+            
+            <div class="upgrade-category">
+                <div class="category-title">👥 Investors & Staff</div>
+                <div id="investorUpgrades"></div>
+            </div>
+            
+            <div class="upgrade-category">
+                <div class="category-title">🏢 Infrastructure</div>
+                <div id="infrastructureUpgrades"></div>
+            </div>
+            
+            <div class="special-upgrades" id="specialUpgrades" style="display: none;">
+                <div class="category-title" style="color: #667eea;">⭐ Special Ventures</div>
+                <div id="specialUpgradesList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="achievement-notification" id="achievementNotification">
+        <div class="achievement-title"></div>
+        <div class="achievement-description"></div>
+    </div>
+
+    <script>
+        // JavaScript - You can move this to a separate .js file
+        class ShareholderValueClicker {
+            constructor() {
+                this.shareholderValue = 0;
+                this.svPerSecond = 0;
+                this.totalClicks = 0;
+                this.clickPower = 1;
+                
+                this.upgrades = {
+                    investors: [
+                        { id: 'intern', name: 'Unpaid Intern', icon: '🧑‍💼', cost: 10, owned: 0, svps: 0.2, description: 'Fresh graduate, desperate for experience' },
+                        { id: 'analyst', name: 'Junior Analyst', icon: '📊', cost: 60, owned: 0, svps: 1.5, description: 'Makes PowerPoint presentations' },
+                        { id: 'senior', name: 'Senior Analyst', icon: '💼', cost: 600, owned: 0, svps: 12, description: 'Actually knows what they\'re doing' },
+                        { id: 'angel', name: 'Angel Investor', icon: '😇', cost: 6000, owned: 0, svps: 70, description: 'Has money and opinions' },
+                        { id: 'vc', name: 'Venture Capitalist', icon: '🤑', cost: 65000, owned: 0, svps: 400, description: 'Wants 10x returns yesterday' },
+                        { id: 'board', name: 'Board Member', icon: '👔', cost: 700000, owned: 0, svps: 2100, description: 'Makes important-sounding decisions' },
+                        { id: 'chairman', name: 'Executive Chairman', icon: '👑', cost: 10000000, owned: 0, svps: 12000, description: 'The boss of all bosses' },
+                        { id: 'hedge', name: 'Hedge Fund Manager', icon: '🐺', cost: 165000000, owned: 0, svps: 66000, description: 'Plays with other people\'s money' }
+                    ],
+                    infrastructure: [
+                        { id: 'coffee', name: 'Coffee Machine', icon: '☕', cost: 300, owned: 0, multiplier: 1.5, description: 'Fuel for capitalism' },
+                        { id: 'office', name: 'Office Space', icon: '🏢', cost: 1500, owned: 0, multiplier: 2.0, description: 'A place to generate value' },
+                        { id: 'conference', name: 'Conference Room', icon: '🪑', cost: 12500, owned: 0, multiplier: 2.5, description: 'Where synergy happens' },
+                        { id: 'car', name: 'Company Car', icon: '🚗', cost: 75000, owned: 0, multiplier: 3.0, description: 'For very important meetings' },
+                        { id: 'jet', name: 'Private Jet', icon: '✈️', cost: 2500000, owned: 0, multiplier: 5.0, description: 'Sky-high productivity' },
+                        { id: 'offshore', name: 'Offshore Account', icon: '🏝️', cost: 25000000, owned: 0, multiplier: 10.0, description: 'Definitely for legitimate business' }
+                    ],
+                    special: [
+                        { id: 'quarterly', name: 'Quarterly Reports', icon: '📈', cost: 0, owned: 0, multiplier: 1.1, description: 'Passive income boost', unlocked: false, requirement: 'clicks', threshold: 1000 },
+                        { id: 'buyback', name: 'Stock Buyback', icon: '🔄', cost: 0, owned: 0, multiplier: 1.2, description: 'Click power multiplier', unlocked: false, requirement: 'sv', threshold: 100000 },
+                        { id: 'ipo', name: 'IPO Launch', icon: '🚀', cost: 0, owned: 0, multiplier: 2.0, description: 'Massive multiplier', unlocked: false, requirement: 'sv', threshold: 10000000 },
+                        { id: 'manipulation', name: 'Market Manipulation', icon: '📉', cost: 0, owned: 0, clickMultiplier: 5, description: 'Unethical click power', unlocked: false, requirement: 'clicks', threshold: 10000 }
+                    ]
+                };
+                
+                this.achievements = [
+                    { id: 'first_click', name: 'First Steps', description: 'Click the boardroom table for the first time', threshold: 1, type: 'clicks', unlocked: false },
+                    { id: 'hundred_clicks', name: 'Getting the Hang of It', description: 'Click 100 times', threshold: 100, type: 'clicks', unlocked: false },
+                    { id: 'thousand_sv', name: 'Four Figures', description: 'Reach 1,000 shareholder value', threshold: 1000, type: 'sv', unlocked: false },
+                    { id: 'first_employee', name: 'You\'re Hired!', description: 'Hire your first employee', threshold: 1, type: 'investors', unlocked: false },
+                    { id: 'ten_employees', name: 'Growing Team', description: 'Have 10 employees', threshold: 10, type: 'investors', unlocked: false },
+                    { id: 'million_sv', name: 'Millionaire Status', description: 'Reach 1,000,000 shareholder value', threshold: 1000000, type: 'sv', unlocked: false }
+                ];
+                
+                this.seatRows = [
+                    { radius: 180, seats: 20, startId: 0 },
+                    { radius: 240, seats: 24, startId: 20 },
+                    { radius: 300, seats: 28, startId: 44 },
+                    { radius: 360, seats: 32, startId: 72 }
+                ];
+                this.currentMaxSeats = 0;
+                
+                this.init();
+            }
+            
+            init() {
+                this.createSeats();
+                this.createUpgradeElements();
+                this.bindEvents();
+                this.startGameLoop();
+                this.updateDisplay();
+            }
+            
+            createSeats() {
+                // Only create the first row initially
+                this.createSeatRow(0);
+            }
+            
+            createSeatRow(rowIndex) {
+                if (rowIndex >= this.seatRows.length) return;
+                
+                const container = document.querySelector('.boardroom-container');
+                const centerX = 200;
+                const centerY = 200;
+                const row = this.seatRows[rowIndex];
+                
+                for (let i = 0; i < row.seats; i++) {
+                    const angle = (i * 2 * Math.PI) / row.seats;
+                    const x = centerX + row.radius * Math.cos(angle) - 20;
+                    const y = centerY + row.radius * Math.sin(angle) - 20;
+                    
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.id = `seat-${row.startId + i}`;
+                    seat.style.left = `${x}px`;
+                    seat.style.top = `${y}px`;
+                    
+                    container.appendChild(seat);
+                }
+                
+                this.currentMaxSeats += row.seats;
+            }
+            
+            createUpgradeElements() {
+                this.createUpgradeCategory('investorUpgrades', this.upgrades.investors);
+                this.createUpgradeCategory('infrastructureUpgrades', this.upgrades.infrastructure);
+            }
+            
+            createUpgradeCategory(containerId, upgrades) {
+                const container = document.getElementById(containerId);
+                
+                upgrades.forEach(upgrade => {
+                    const element = document.createElement('div');
+                    element.className = 'upgrade';
+                    element.id = `upgrade-${upgrade.id}`;
+                    
+                    // Create tooltip text based on upgrade type
+                    let tooltipText = '';
+                    if (upgrade.svps) {
+                        tooltipText = `+${upgrade.svps} SV/s per hire`;
+                    } else if (upgrade.multiplier) {
+                        tooltipText = `${upgrade.multiplier}x all production (one-time)`;
+                    }
+                    
+                    element.innerHTML = `
+                        <div class="upgrade-tooltip" data-tooltip="${tooltipText}"></div>
+                        <div class="upgrade-icon">${upgrade.icon}</div>
+                        <div class="upgrade-info">
+                            <div class="upgrade-name">${upgrade.name}</div>
+                            <div class="upgrade-description">${upgrade.description}</div>
+                            <div class="upgrade-cost">Cost: <span id="cost-${upgrade.id}">${this.formatNumber(upgrade.cost)}</span> SV</div>
+                        </div>
+                        <div class="upgrade-count" id="count-${upgrade.id}">0</div>
+                    `;
+                    
+                    element.addEventListener('click', () => this.buyUpgrade(upgrade));
+                    container.appendChild(element);
+                });
+            }
+            
+            bindEvents() {
+                const table = document.getElementById('boardroomTable');
+                table.addEventListener('click', (e) => this.clickTable(e));
+            }
+            
+            clickTable(e) {
+                this.shareholderValue += this.clickPower;
+                this.totalClicks++;
+                
+                // Visual feedback
+                const table = document.getElementById('boardroomTable');
+                table.classList.add('clicking');
+                setTimeout(() => table.classList.remove('clicking'), 100);
+                
+                // Floating text
+                this.createFloatingText(e, `+${this.clickPower}`);
+                
+                // Check for achievements and special upgrades
+                this.checkAchievements();
+                this.checkSpecialUpgrades();
+                this.updateDisplay();
+            }
+            
+            createFloatingText(e, text) {
+                const floating = document.createElement('div');
+                floating.className = 'floating-text';
+                floating.textContent = text;
+                floating.style.left = `${e.clientX}px`;
+                floating.style.top = `${e.clientY}px`;
+                
+                document.body.appendChild(floating);
+                setTimeout(() => document.body.removeChild(floating), 1000);
+            }
+            
+            buyUpgrade(upgrade) {
+                const cost = this.getUpgradeCost(upgrade);
+                
+                if (this.shareholderValue >= cost) {
+                    // Check if it's an infrastructure upgrade that's already owned
+                    if (this.upgrades.infrastructure.includes(upgrade) && upgrade.owned > 0) {
+                        return; // Can't buy infrastructure upgrades multiple times
+                    }
+                    
+                    this.shareholderValue -= cost;
+                    upgrade.owned++;
+                    
+                    if (upgrade.svps) {
+                        // Regular investor upgrade - add to svPerSecond
+                        this.svPerSecond += upgrade.svps;
+                    } else if (upgrade.multiplier) {
+                        // Infrastructure upgrade - multiply all current and future production
+                        this.svPerSecond *= upgrade.multiplier;
+                        
+                        // Also multiply the base production of all investor upgrades for future purchases
+                        this.upgrades.investors.forEach(inv => {
+                            inv.svps *= upgrade.multiplier;
+                        });
+                    }
+                    
+                    // Only increase cost for investor upgrades, not infrastructure
+                    if (this.upgrades.investors.includes(upgrade)) {
+                        upgrade.cost = Math.floor(upgrade.cost * 1.15);
+                    }
+                    
+                    // Fill seats for investor upgrades only
+                    if (this.upgrades.investors.includes(upgrade)) {
+                        this.fillNextSeat();
+                    }
+                    
+                    this.checkAchievements();
+                    this.updateDisplay();
+                }
+            }
+            
+            getUpgradeCost(upgrade) {
+                return upgrade.cost;
+            }
+            
+            fillNextSeat() {
+                const totalInvestors = this.upgrades.investors.reduce((sum, inv) => sum + inv.owned, 0);
+                
+                // Check if we need to create a new row
+                if (totalInvestors > this.currentMaxSeats) {
+                    const currentRowIndex = this.seatRows.findIndex(row => 
+                        totalInvestors <= row.startId + row.seats
+                    );
+                    if (currentRowIndex > 0) {
+                        this.createSeatRow(currentRowIndex);
+                    }
+                }
+                
+                const seatIndex = Math.min(totalInvestors - 1, this.currentMaxSeats - 1);
+                
+                if (seatIndex >= 0) {
+                    const seat = document.getElementById(`seat-${seatIndex}`);
+                    if (seat) {
+                        seat.classList.add('occupied');
+                    }
+                }
+            }
+            
+            checkSpecialUpgrades() {
+                let hasNewUnlocks = false;
+                
+                this.upgrades.special.forEach(upgrade => {
+                    if (!upgrade.unlocked) {
+                        let meetsRequirement = false;
+                        
+                        if (upgrade.requirement === 'clicks' && this.totalClicks >= upgrade.threshold) {
+                            meetsRequirement = true;
+                        } else if (upgrade.requirement === 'sv' && this.shareholderValue >= upgrade.threshold) {
+                            meetsRequirement = true;
+                        }
+                        
+                        if (meetsRequirement) {
+                            upgrade.unlocked = true;
+                            upgrade.cost = Math.floor(upgrade.threshold * 10);
+                            hasNewUnlocks = true;
+                        }
+                    }
+                });
+                
+                if (hasNewUnlocks) {
+                    this.updateSpecialUpgrades();
+                }
+            }
+            
+            updateSpecialUpgrades() {
+                const container = document.getElementById('specialUpgradesList');
+                const specialSection = document.getElementById('specialUpgrades');
+                
+                container.innerHTML = '';
+                let hasUnlockedSpecials = false;
+                
+                this.upgrades.special.forEach(upgrade => {
+                    if (upgrade.unlocked) {
+                        hasUnlockedSpecials = true;
+                        const element = document.createElement('div');
+                        element.className = 'upgrade special-upgrade';
+                        element.innerHTML = `
+                            <div class="upgrade-icon">${upgrade.icon}</div>
+                            <div class="upgrade-info">
+                                <div class="upgrade-name">${upgrade.name}</div>
+                                <div class="upgrade-description">${upgrade.description}</div>
+                                <div class="upgrade-cost">Cost: ${this.formatNumber(upgrade.cost)} SV</div>
+                            </div>
+                            <div class="upgrade-count">${upgrade.owned}</div>
+                        `;
+                        
+                        element.addEventListener('click', () => this.buySpecialUpgrade(upgrade));
+                        container.appendChild(element);
+                    }
+                });
+                
+                specialSection.style.display = hasUnlockedSpecials ? 'block' : 'none';
+            }
+            
+            buySpecialUpgrade(upgrade) {
+                if (this.shareholderValue >= upgrade.cost) {
+                    this.shareholderValue -= upgrade.cost;
+                    upgrade.owned++;
+                    upgrade.cost = Math.floor(upgrade.cost * 2);
+                    
+                    if (upgrade.multiplier) {
+                        this.svPerSecond *= upgrade.multiplier;
+                    }
+                    
+                    if (upgrade.clickMultiplier) {
+                        this.clickPower *= upgrade.clickMultiplier;
+                    }
+                    
+                    this.updateDisplay();
+                    this.updateSpecialUpgrades();
+                }
+            }
+            
+            checkAchievements() {
+                this.achievements.forEach(achievement => {
+                    if (!achievement.unlocked) {
+                        let currentValue = 0;
+                        
+                        switch (achievement.type) {
+                            case 'clicks':
+                                currentValue = this.totalClicks;
+                                break;
+                            case 'sv':
+                                currentValue = this.shareholderValue;
+                                break;
+                            case 'investors':
+                                currentValue = this.upgrades.investors.reduce((sum, inv) => sum + inv.owned, 0);
+                                break;
+                        }
+                        
+                        if (currentValue >= achievement.threshold) {
+                            achievement.unlocked = true;
+                            this.showAchievement(achievement);
+                        }
+                    }
+                });
+            }
+            
+            showAchievement(achievement) {
+                const notification = document.getElementById('achievementNotification');
+                notification.querySelector('.achievement-title').textContent = achievement.name;
+                notification.querySelector('.achievement-description').textContent = achievement.description;
+                
+                notification.classList.add('show');
+                setTimeout(() => notification.classList.remove('show'), 3000);
+            }
+            
+            updateDisplay() {
+                document.getElementById('shareholderValue').textContent = this.formatNumber(Math.floor(this.shareholderValue));
+                document.getElementById('svPerSecond').textContent = this.formatNumber(this.svPerSecond.toFixed(1));
+                document.getElementById('totalClicks').textContent = this.formatNumber(this.totalClicks);
+                
+                // Update upgrade affordability
+                [...this.upgrades.investors, ...this.upgrades.infrastructure].forEach(upgrade => {
+                    const element = document.getElementById(`upgrade-${upgrade.id}`);
+                    const cost = this.getUpgradeCost(upgrade);
+                    
+                    element.classList.remove('affordable', 'expensive', 'never-bought');
+                    element.style.opacity = ''; // Clear any inline opacity
+                    
+                    // Update tooltip text with current values
+                    const tooltipElement = element.querySelector('.upgrade-tooltip');
+                    if (tooltipElement) {
+                        let tooltipText = '';
+                        if (upgrade.svps) {
+                            tooltipText = `+${upgrade.svps.toFixed(1)} SV/s per hire`;
+                        } else if (upgrade.multiplier) {
+                            tooltipText = `${upgrade.multiplier}x all production (one-time)`;
+                        }
+                        tooltipElement.setAttribute('data-tooltip', tooltipText);
+                    }
+                    
+                    // Gray out upgrades that have never been bought
+                    if (upgrade.owned === 0) {
+                        element.classList.add('never-bought');
+                    }
+                    
+                    // Check if it's an owned infrastructure upgrade
+                    if (this.upgrades.infrastructure.includes(upgrade) && upgrade.owned > 0) {
+                        element.classList.add('expensive'); // Make it look unclickable
+                        element.style.opacity = '0.5'; // Only override for owned infrastructure
+                        document.getElementById(`cost-${upgrade.id}`).textContent = 'OWNED';
+                        document.getElementById(`count-${upgrade.id}`).textContent = '✓';
+                    } else if (this.shareholderValue >= cost) {
+                        element.classList.add('affordable');
+                        document.getElementById(`cost-${upgrade.id}`).textContent = this.formatNumber(cost);
+                        document.getElementById(`count-${upgrade.id}`).textContent = upgrade.owned;
+                    } else {
+                        element.classList.add('expensive');
+                        document.getElementById(`cost-${upgrade.id}`).textContent = this.formatNumber(cost);
+                        document.getElementById(`count-${upgrade.id}`).textContent = upgrade.owned;
+                    }
+                });
+            }
+            
+            formatNumber(num) {
+                if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+                if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+                if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+                if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+                return num.toString();
+            }
+            
+            startGameLoop() {
+                setInterval(() => {
+                    this.shareholderValue += this.svPerSecond / 10;
+                    this.updateDisplay();
+                }, 100);
+            }
+        }
+        
+        // Start the game when page loads
+        window.addEventListener('load', () => {
+            new ShareholderValueClicker();
+        });
+    </script>
+</body>
+</html>
